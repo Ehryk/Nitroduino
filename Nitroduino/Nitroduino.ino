@@ -17,6 +17,7 @@ bool CHECK_ARM = false;
 bool CHECK_WOT = true;
 bool CHECK_RPM = true;
 bool CHECK_CLUTCH = true;
+bool BYPASS = false;
 
 //Variables
 volatile int RPM = 0;
@@ -86,6 +87,7 @@ bool passRPM() {
 }
 
 bool passConditions() {
+  if (BYPASS) return true;
   if (CHECK_ARM && !armed()) return false;
   if (CHECK_WOT && digitalRead(WOT_PIN) == LOW) return false;
   if (CHECK_CLUTCH && digitalRead(CLUTCH_PIN) == LOW) return false;
