@@ -20,6 +20,11 @@ bool CHECK_CLUTCH = true;
 
 //Variables
 volatile int RPM = 0;
+volatile bool Active = false;
+volatile int NitrousCount = 0;
+volatile long NitrousTime = 0;
+volatile long NitrousStart = 0;
+volatile int NitrousLoops = 0;
 
 void setup() {
   //Outputs
@@ -38,14 +43,31 @@ void setup() {
 }
 
 void loop() {
+  long now = millis();
   if (triggered() && passConditions()) {
-    analogWrite(N2O_PIN, N2O_TRIM);
-    analogWrite(FUEL_PIN, FUEL_TRIM);
+    if (Active) {
+      NitrousLoops++;
+    }
+    else {
+      analogWrite(N2O_PIN, N2O_TRIM);
+      analogWrite(FUEL_PIN, FUEL_TRIM);
+      
+      Active = true;
+      NitrousCount++;
+      NitrousStart = now;
+    }
   }
-  else {
+  else if (Active) {
     analogWrite(N2O_PIN, 0);
     analogWrite(FUEL_PIN, 0);
+    
+    Active = false;
+    NitrousTime += now - NitrousStart;
   }
+
+  //Update Display?
+  
+  long loopDuration = millis() - now;
 }
 
 bool triggered() {
